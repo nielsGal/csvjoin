@@ -5,6 +5,7 @@ import(
 	"os"
 	"bufio"
 	"strings"
+	"errors"
 )
 
 type Table struct{
@@ -35,7 +36,11 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	result := hashInnerJoin(table1,table2,key1,key2)
+	result , err := hashInnerJoin(table1,table2,key1,key2)
+	if err != nil {
+		fmt.Println("Join failed, are keys inside of the csv headers?")
+		return
+	}
 	printTable(* result)
 	fmt.Printf("joining %s on %s with %s on %s using %s",file1,key1,file2,key2,action)
 }
@@ -75,7 +80,7 @@ func printTable(t Table){
 	}
 }
 
-func hashInnerJoin(firstTable *Table,secondTable *Table,firstKey string, secondKey string) *Table{
+func hashInnerJoin(firstTable *Table,secondTable *Table,firstKey string, secondKey string) (*Table, error){
 	hash := make(map[string][]string)
 	sizeFirst := len(firstTable.columns)
 	sizeSecond := len(secondTable.columns)
@@ -105,7 +110,7 @@ func hashInnerJoin(firstTable *Table,secondTable *Table,firstKey string, secondK
 		}
 	}
 	if (indexBig == -1 || indexSmall == -1 ){
-		panic("keys not found")
+		return nil, errors.New("key  not found")
 	}
 	for i:= 0; i < len(smallest.columns);i++{
 		hash[smallest.columns[i][indexSmall]] = smallest.columns[i]
@@ -118,7 +123,7 @@ func hashInnerJoin(firstTable *Table,secondTable *Table,firstKey string, secondK
 		}
 	}
 
-	return join
+	return join , nil
 }
 
 func sortedMergeInnerJoin(firstTable Table,secondTable Table,firstKey string, secondKey string) *Table{
