@@ -95,6 +95,7 @@ func hashInnerJoin(firstTable *Table,secondTable *Table,firstKey string, secondK
 		smallest = secondTable
 		bigger = firstTable
 	}
+	join.names = append(smallest.names,bigger.names...)
 	indexSmall := -1
 	indexBig := -1
 	for i := 0; i < len(smallest.names); i ++ {
