@@ -126,10 +126,45 @@ func hashInnerJoin(firstTable *Table,secondTable *Table,firstKey string, secondK
 	return join , nil
 }
 
-func sortedMergeInnerJoin(firstTable Table,secondTable Table,firstKey string, secondKey string) *Table{
+func sortedMergeInnerJoin(leftTable Table,rightTable Table,leftKey string, rightKey string) *Table{
+	hash := make(map[string][]string)
+	join := new(Table)
+	indexLeft := -1
+	indexRight := -1
+	for i := 0; i < len(leftTable.names); i ++ {
+		if leftTable.names[i] == leftKey {
+			indexLeft = i
+		}
+	}
 
+	for i := 0; i < len(rightTable.names); i ++ {
+		if rightTable.names[i] == rightKey {
+			indexRight = i
+		}
+	}
+
+	for i := 0; i < len(rightTable.columns); i++ {
+		hash[rightTable.columns[i][indexRight]] = rightTable.columns[i]
+	}
+	for i := 0; i < len(leftTable.columns); i++ {
+		if val, ok := hash[leftTable.columns[i][indexLeft]]; ok{
+			join.columns = append(join.columns,append(leftTable.columns[i],val...))
+		}else{
+			nulls := makeNulls(len(rightTable.names))
+			join.columns = append(join.columns,append(leftTable.columns[i],nulls...))
+		}
+	}
 	return new(Table)
 }
+
+func makeNulls(total int)[]string{
+	result := []string{}
+	for i:= 0; i<total;i++{
+		result = append(result,",")
+	}
+	return result
+}
+
 func hashLeftJoin(firstTable Table,secondTable Table,firstKey string, secondKey string) *Table{
 
 	return new(Table)
