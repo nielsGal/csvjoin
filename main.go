@@ -35,8 +35,8 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	printTable(* table1)
-	printTable(* table2)
+	result := hashInnerJoin(table1,table2,key1,key2)
+	printTable(* result)
 	fmt.Printf("joining %s on %s with %s on %s using %s",file1,key1,file2,key2,action)
 }
 
@@ -104,7 +104,9 @@ func hashInnerJoin(firstTable *Table,secondTable *Table,firstKey string, secondK
 			break
 		}
 	}
-
+	if (indexBig == -1 || indexSmall == -1 ){
+		panic("keys not found")
+	}
 	for i:= 0; i < len(smallest.columns);i++{
 		hash[smallest.columns[i][indexSmall]] = smallest.columns[i]
 	}
